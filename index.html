@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Camera</title>
+<style>
+  body{margin:0;background:#000;overflow:hidden}
+  video{width:100vw;height:100vh;object-fit:cover;display:block}
+  #switch{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+    padding:14px 28px;border-radius:30px;border:none;
+    background:#00ff9d;color:#000;font-weight:bold;font-size:16px;
+    box-shadow:0 0 20px #00ff9d;
+  }
+</style>
+</head>
+<body>
+
+<video id="cam" autoplay playsinline muted></video>
+<button id="switch">🔄 Switch Camera</button>
+
+<script>
+let currentStream = null;
+let facingMode = 'environment'; // back camera
+
+async function startCamera() {
+  // পুরোনো stream বন্ধ
+  if (currentStream) {
+    currentStream.getTracks().forEach(t => t.stop());
+  }
+
+  try {
+    const constraints = {
+      video: {
+        facingMode: facingMode,
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      },
+      audio: true // mic
+    };
+
+    currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+    document.getElementById('cam').srcObject = currentStream;
+
+  } catch (err) {
+    console.error('Camera error:', err);
+    alert('Camera error: ' + err.message);
+  }
+}
+
+document.getElementById('switch').onclick = () => {
+  facingMode = facingMode === 'environment' ? 'user' : 'environment';
+  startCamera();
+};
+
+startCamera();
+</script>
+</body>
+</html>
